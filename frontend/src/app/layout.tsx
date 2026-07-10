@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { TelegramInit } from "@/components/telegram-init";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -22,6 +24,11 @@ export default function RootLayout({
   return (
     <html lang="ko" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-[var(--bg)] text-[var(--text)]">
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="beforeInteractive"
+        />
+        <TelegramInit />
         <LocaleProvider>
           <AuthProvider>{children}</AuthProvider>
         </LocaleProvider>
