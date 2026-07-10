@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+:root {
+  /* Neutrals: cool-blue bias to match the accent, not pure gray */
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #dde3ea;
+  --border-strong: #c5cedb;
+  --text: #101828;
+  --text-muted: #5b6778;
+  --text-faint: #8996a8;
+
+  /* Accent: indigo-blue, trustworthy/industrial */
+  --accent: #2454e0;
+  --accent-hover: #1d44bd;
+  --accent-contrast: #ffffff;
+  --accent-soft: #e8edfc;
+  --accent-soft-text: #2454e0;
+
+  /* Semantic status (order lifecycle progression, cool -> warm -> green) */
+  --status-received-bg: #eef1f6;
+  --status-received-text: #4a5568;
+  --status-production-bg: #fdf1e0;
+  --status-production-text: #9a5b0a;
+  --status-delivered-bg: #e6effe;
+  --status-delivered-text: #1d4ed8;
+  --status-installed-bg: #eee6fd;
+  --status-installed-text: #6d28d9;
+  --status-completed-bg: #e3f6ea;
+  --status-completed-text: #157347;
+
+  --danger: #d1373f;
+  --danger-hover: #b32c33;
+  --danger-soft: #fbeaeb;
+
+  --focus-ring: #2454e0;
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Pretendard", Roboto, "Noto Sans KR", sans-serif;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --font-sans: var(--font-sans);
+}
+
+/* Light-only: dark mode intentionally disabled for this app. */
+:root[data-theme="light"],
+:root[data-theme="dark"] {
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #dde3ea;
+  --border-strong: #c5cedb;
+  --text: #101828;
+  --text-muted: #5b6778;
+  --text-faint: #8996a8;
+
+  --accent: #2454e0;
+  --accent-hover: #1d44bd;
+  --accent-contrast: #ffffff;
+  --accent-soft: #e8edfc;
+  --accent-soft-text: #2454e0;
+
+  --status-received-bg: #eef1f6;
+  --status-received-text: #4a5568;
+  --status-production-bg: #fdf1e0;
+  --status-production-text: #9a5b0a;
+  --status-delivered-bg: #e6effe;
+  --status-delivered-text: #1d4ed8;
+  --status-installed-bg: #eee6fd;
+  --status-installed-text: #6d28d9;
+  --status-completed-bg: #e3f6ea;
+  --status-completed-text: #157347;
+
+  --danger: #d1373f;
+  --danger-hover: #b32c33;
+  --danger-soft: #fbeaeb;
+
+  --focus-ring: #2454e0;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-soft-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

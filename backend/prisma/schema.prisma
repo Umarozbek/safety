@@ -1,0 +1,174 @@
+// Safety net supply company internal management system
+// Prisma schema — draft for review before migration
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// NOTE: using SQLite for local dev because MySQL root access on this
+// machine is locked behind Windows admin rights that aren't available here.
+// Swap provider back to "mysql" (and restore url = env("DATABASE_URL")
+// with a mysql:// connection string) for staging/production.
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum UserRole {
+  BOSS
+  ADMIN
+  WORKER
+}
+
+enum OrderStatus {
+  RECEIVED // 접수
+  IN_PRODUCTION // 생산중
+  DELIVERED // 배송
+  INSTALLED // 설치
+  COMPLETED // 완료
+}
+
+enum CityStatus {
+  ACTIVE_INSTALLED
+  PLANNED
+}
+
+enum WorkerRole {
+  PRODUCTION
+  INSTALLATION
+}
+
+enum JobAssignmentStatus {
+  ASSIGNED
+  IN_PROGRESS
+  FINISHED
+}
+
+// ---------- Models ----------
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  role         UserRole
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Present only when role = WORKER
+  worker Worker?
+
+  @@map("users")
+}
+
+model Customer {
+  id            Int      @id @default(autoincrement())
+  companyName   String
+  contactPhone  String
+  contactPerson String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orders Order[]
+
+  @@map("customers")
+}
+
+model City {
+  id     Int        @id @default(autoincrement())
+  name   String     @unique
+  status CityStatus @default(PLANNED)
+
+  sites Site[]
+  teams Team[]
+
+  @@map("cities")
+}
+
+model Site {
+  id          Int     @id @default(autoincrement())
+  cityId      Int
+  address     String
+  mapLink     String? // Kakao/Naver map reference URL
+  sizeSqm     Decimal
+  accessNotes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  city  City   @relation(fields: [cityId], references: [id])
+  order Order?
+
+  @@index([cityId])
+  @@map("sites")
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  orderNumber   String      @unique // e.g. Busan_22 — sequential per city
+  customerId    Int
+  siteId        Int         @unique // strictly one site per order
+  requestedDate DateTime
+  status        OrderStatus @default(RECEIVED)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  customer       Customer        @relation(fields: [customerId], references: [id])
+  site           Site            @relation(fields: [siteId], references: [id])
+  jobAssignments JobAssignment[]
+
+  @@index([customerId])
+  @@index([status])
+  @@map("orders")
+}
+
+model Team {
+  id     Int    @id @default(autoincrement())
+  name   String
+  cityId Int // team's fixed primary operating city
+
+  city    City     @relation(fields: [cityId], references: [id])
+  workers Worker[]
+
+  jobAssignments JobAssignment[]
+
+  @@index([cityId])
+  @@map("teams")
+}
+
+model Worker {
+  id     Int        @id @default(autoincrement())
+  name   String
+  phone  String
+  teamId Int
+  role   WorkerRole
+
+  userAccountId Int? @unique
+
+  team        Team  @relation(fields: [teamId], references: [id])
+  userAccount User? @relation(fields: [userAccountId], references: [id])
+
+  @@index([teamId])
+  @@map("workers")
+}
+
+model JobAssignment {
+  id                 Int                 @id @default(autoincrement())
+  orderId            Int
+  teamId             Int
+  assignedDate       DateTime
+  status             JobAssignmentStatus @default(ASSIGNED)
+  completionPhotoUrl String?
+  finishedAt         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+  team  Team  @relation(fields: [teamId], references: [id])
+
+  @@index([orderId])
+  @@index([teamId])
+  @@map("job_assignments")
+}

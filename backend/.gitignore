@@ -1,0 +1,16 @@
+node_modules
+# Keep environment variables out of version control
+.env
+.env.*
+!.env.example
+
+/generated/prisma
+
+# Local SQLite dev database
+prisma/dev.db
+prisma/*.db
+prisma/*.db-journal
+
+dist
+coverage
+*.tsbuildinfo
