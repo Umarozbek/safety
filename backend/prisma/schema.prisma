@@ -5,12 +5,11 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// NOTE: using SQLite for local dev because MySQL root access on this
-// machine is locked behind Windows admin rights that aren't available here.
-// Swap provider back to "mysql" (and restore url = env("DATABASE_URL")
-// with a mysql:// connection string) for staging/production.
+// Production/staging: PostgreSQL (e.g. Railway's managed Postgres).
+// For local dev without a Postgres instance handy, you can temporarily
+// switch provider to "sqlite" and DATABASE_URL to "file:./dev.db".
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -91,7 +90,7 @@ model Site {
   cityId      Int
   address     String
   mapLink     String? // Kakao/Naver map reference URL
-  sizeSqm     Decimal
+  sizeSqm     Decimal @db.Decimal(10, 2)
   accessNotes String?
 
   createdAt DateTime @default(now())
