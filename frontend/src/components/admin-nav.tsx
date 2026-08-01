@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -15,14 +16,20 @@ const LINKS = [
   { href: "/admin/workers", labelKey: "navWorkers", icon: HardHatIcon },
 ] as const;
 
-export function AdminSidebar() {
+export function AdminMobileTopBar({ onMenu }: { onMenu: () => void }) {
   const { t } = useLocale();
-  const { user, logout } = useAuth();
-  const pathname = usePathname();
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)]">
-      <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-4">
+    <header className="flex items-center gap-3 border-b border-[var(--border)] bg-[var(--surface)] px-4 py-3.5 lg:hidden">
+      <button
+        type="button"
+        onClick={onMenu}
+        aria-label={t("menu")}
+        className="rounded-md p-1.5 text-[var(--text)] hover:bg-[var(--bg)]"
+      >
+        <MenuIcon />
+      </button>
+      <div className="flex items-center gap-2">
         <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--accent)]">
           <NetMark />
         </div>
@@ -30,59 +37,126 @@ export function AdminSidebar() {
           {t("appTitle")}
         </span>
       </div>
+    </header>
+  );
+}
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-        {LINKS.map((link) => {
-          const active =
-            link.href === "/admin"
-              ? pathname === "/admin"
-              : pathname.startsWith(link.href);
-          const Icon = link.icon;
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                active
-                  ? "bg-[var(--accent-soft)] text-[var(--accent-soft-text)]"
-                  : "text-[var(--text-muted)] hover:bg-[var(--bg)] hover:text-[var(--text)]"
-              }`}
-            >
-              <Icon active={active} />
-              {t(link.labelKey)}
-            </Link>
-          );
-        })}
-      </nav>
+export function AdminSidebar({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const { t } = useLocale();
+  const { user, logout } = useAuth();
+  const pathname = usePathname();
 
-      <div className="border-t border-[var(--border)] p-3">
-        <div className="mb-2 flex items-center justify-between px-1">
-          <LanguageToggle />
-        </div>
-        <div className="flex items-center gap-2.5 rounded-md px-2 py-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-semibold text-[var(--accent-soft-text)]">
-            {user?.username.slice(0, 1).toUpperCase()}
+  useEffect(() => {
+    onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  return (
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 -translate-x-full flex-col border-r border-[var(--border)] bg-[var(--surface)] transition-transform duration-200 lg:static lg:w-60 lg:translate-x-0 ${
+          open ? "translate-x-0" : ""
+        }`}
+      >
+        <div className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-4">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--accent)]">
+            <NetMark />
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-medium text-[var(--text)]">
-              {user?.username}
-            </p>
-            <p className="text-xs text-[var(--text-faint)]">
-              {t("roleAdmin")}
-            </p>
-          </div>
+          <span className="text-sm font-semibold leading-tight text-[var(--text)]">
+            {t("appTitle")}
+          </span>
           <button
             type="button"
-            onClick={logout}
-            aria-label={t("logout")}
-            title={t("logout")}
-            className="shrink-0 rounded-md p-1.5 text-[var(--text-faint)] transition-colors hover:bg-[var(--danger-soft)] hover:text-[var(--danger)]"
+            onClick={onClose}
+            aria-label={t("close")}
+            className="ml-auto rounded-md p-1.5 text-[var(--text-faint)] hover:bg-[var(--bg)] lg:hidden"
           >
-            <LogoutIcon />
+            <CloseIcon />
           </button>
         </div>
-      </div>
-    </aside>
+
+        <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
+          {LINKS.map((link) => {
+            const active =
+              link.href === "/admin"
+                ? pathname === "/admin"
+                : pathname.startsWith(link.href);
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  active
+                    ? "bg-[var(--accent-soft)] text-[var(--accent-soft-text)]"
+                    : "text-[var(--text-muted)] hover:bg-[var(--bg)] hover:text-[var(--text)]"
+                }`}
+              >
+                <Icon active={active} />
+                {t(link.labelKey)}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="border-t border-[var(--border)] p-3">
+          <div className="mb-2 flex items-center justify-between px-1">
+            <LanguageToggle />
+          </div>
+          <div className="flex items-center gap-2.5 rounded-md px-2 py-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-xs font-semibold text-[var(--accent-soft-text)]">
+              {user?.username.slice(0, 1).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-medium text-[var(--text)]">
+                {user?.username}
+              </p>
+              <p className="text-xs text-[var(--text-faint)]">
+                {t("roleAdmin")}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={logout}
+              aria-label={t("logout")}
+              title={t("logout")}
+              className="shrink-0 rounded-md p-1.5 text-[var(--text-faint)] transition-colors hover:bg-[var(--danger-soft)] hover:text-[var(--danger)]"
+            >
+              <LogoutIcon />
+            </button>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+function MenuIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
   );
 }
 
