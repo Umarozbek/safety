@@ -12,7 +12,7 @@ import type {
 } from "./types";
 import * as mock from "./mock-data";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001").replace(/\/+$/, "");
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 export type UserRole = "BOSS" | "ADMIN" | "WORKER";
